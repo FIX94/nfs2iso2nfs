@@ -25,11 +25,11 @@ namespace nfs2iso2nfs
         public static bool passthrough = false;
         public static bool instantcc = false;
         public static bool nocc = false;
-        public static string keyFile = "..\\code\\htk.bin";
+        public static string keyFile = ".." + Path.DirectorySeparatorChar + "code" + Path.DirectorySeparatorChar + "htk.bin";
         public static string isoFile = "game.iso";
         public static string wiiKeyFile = "wii_common_key.bin";
         public static string nfsDir = "";
-        public static string fw_file = "..\\code\\fw.img";
+        public static string fw_file = ".." + Path.DirectorySeparatorChar + "code" + Path.DirectorySeparatorChar + "fw.img";
 
 
         static void Main(string[] args)
@@ -42,7 +42,7 @@ namespace nfs2iso2nfs
                 return;
             if (dec)
             {
-                byte[] header = getHeader(nfsDir + "\\hif_000000.nfs");
+                byte[] header = getHeader(nfsDir + Path.DirectorySeparatorChar + "hif_000000.nfs");
                 combineNFSFiles("hif.nfs");
                 EnDecryptNFS("hif.nfs", "hif_dec.nfs", key, buildZero(key.Length), false, header);
                 if (!keepFiles)
@@ -142,15 +142,15 @@ namespace nfs2iso2nfs
                         break;
 
                     case "-help":
-                        Console.WriteLine("+++++ NFS2ISO2NFS v0.5.6 +++++");
+                        Console.WriteLine("+++++ NFS2ISO2NFS v0.5.7 +++++");
                         Console.WriteLine();
                         Console.WriteLine("-dec            Decrypt .nfs files to an .iso file.");
                         Console.WriteLine("-enc            Encrypt an .iso file to .nfs file(s)");
-                        Console.WriteLine("-key <file>     Location of AES key file. DEFAULT: code\\htk.bin.");
+                        Console.WriteLine("-key <file>     Location of AES key file. DEFAULT: code" + Path.DirectorySeparatorChar + "htk.bin.");
                         Console.WriteLine("-wiikey <file>  Location of Wii Common key file. DEFAULT: wii_common_key.bin.");
                         Console.WriteLine("-iso <file>     Location of .iso file. DEFAULT: game.iso.");
                         Console.WriteLine("-nfs <file>     Location of .nfs files. DEFAULT: current Directory.");
-                        Console.WriteLine("-fwimg <file>   Location of fw.img. DEFAULT: code\\fw.img.");
+                        Console.WriteLine("-fwimg <file>   Location of fw.img. DEFAULT: code" + Path.DirectorySeparatorChar + "fw.img.");
                         Console.WriteLine("-keep           Don't delete the files produced in intermediate steps.");
                         Console.WriteLine("-legit          Don't patch fw.img to allow fakesigned content");
                         Console.WriteLine("-lrpatch        Map emulated Classic Controller's L & R to Gamepad's ZL & ZR");
@@ -168,15 +168,15 @@ namespace nfs2iso2nfs
 
             string dir = Directory.GetCurrentDirectory();
             if (!Path.IsPathRooted(keyFile))
-                keyFile = dir + "\\" + keyFile;
+                keyFile = dir + Path.DirectorySeparatorChar + keyFile;
             if (!Path.IsPathRooted(isoFile))
-                isoFile = dir + "\\" + isoFile;
+                isoFile = dir + Path.DirectorySeparatorChar + isoFile;
             if (!Path.IsPathRooted(wiiKeyFile))
-                wiiKeyFile = dir + "\\" + wiiKeyFile;
+                wiiKeyFile = dir + Path.DirectorySeparatorChar + wiiKeyFile;
             if (!Path.IsPathRooted(nfsDir))
-                nfsDir = dir + "\\" + nfsDir;
+                nfsDir = dir + Path.DirectorySeparatorChar + nfsDir;
             if (!Path.IsPathRooted(fw_file))
-                fw_file = dir + "\\" + fw_file;
+                fw_file = dir + Path.DirectorySeparatorChar + fw_file;
 
 
             if (map_shoulder_to_trigger && horiz_wiimote || map_shoulder_to_trigger && vert_wiimote)
@@ -186,16 +186,16 @@ namespace nfs2iso2nfs
             }
 
 
-            if (dec || ((!dec && !enc) && File.Exists(nfsDir + "\\hif_000000.nfs")))
+            if (dec || ((!dec && !enc) && File.Exists(nfsDir + Path.DirectorySeparatorChar + "hif_000000.nfs")))
             {
                 Console.WriteLine("+++++ NFS2ISO +++++");
                 Console.WriteLine();
-                if (dec && !enc && !File.Exists(nfsDir + "\\hif_000000.nfs"))
+                if (dec && !enc && !File.Exists(nfsDir + Path.DirectorySeparatorChar + "hif_000000.nfs"))
                 {
                     Console.WriteLine("ERROR: .nfs files not found! Exiting...");
                     return -1;
                 }
-                else if ((!dec && !enc) && File.Exists(nfsDir + "\\hif_000000.nfs"))
+                else if ((!dec && !enc) && File.Exists(nfsDir + Path.DirectorySeparatorChar + "hif_000000.nfs"))
                 {
                     Console.WriteLine("You haven't specified if you want to use nfs2iso or iso2nfs");
                     Console.WriteLine("Found .nfs files! Assuming you want to use nfs2iso...");
@@ -262,7 +262,7 @@ namespace nfs2iso2nfs
                     return null;
                 }
                 WII_COMMON_KEY = getKey(wiiKeyFile);
-                if (key == null)
+                if (WII_COMMON_KEY == null)
                 {
                     Console.WriteLine("ERROR: Wii common key file has wrong file size! Exiting...");
                     return null;
@@ -303,7 +303,7 @@ namespace nfs2iso2nfs
             {
                 Console.WriteLine("Looking for .nfs files...");
                 int nfsNo = -1;
-                while (File.Exists(nfsDir + "\\hif_" + String.Format("{0:D6}", nfsNo + 1) + ".nfs"))
+                while (File.Exists(nfsDir + Path.DirectorySeparatorChar + "hif_" + String.Format("{0:D6}", nfsNo + 1) + ".nfs"))
                     nfsNo++;
                 Console.WriteLine((nfsNo + 1) + " .nfs files found!");
                 Console.WriteLine("Joining .nfs files...");
@@ -311,7 +311,7 @@ namespace nfs2iso2nfs
                 for (int i = 0; i <= nfsNo; i++)
                 {
                     Console.WriteLine("Processing hif_" + String.Format("{0:D6}", i) + ".nfs...");
-                    var nfsTemp = new BinaryReader(File.OpenRead(nfsDir + "\\hif_" + String.Format("{0:D6}", i) + ".nfs"));
+                    var nfsTemp = new BinaryReader(File.OpenRead(nfsDir + Path.DirectorySeparatorChar + "hif_" + String.Format("{0:D6}", i) + ".nfs"));
                     if (i == 0)
                     {
                         nfsTemp.ReadBytes(HEADER_SIZE);
@@ -333,7 +333,7 @@ namespace nfs2iso2nfs
                 do
                 {
                     Console.WriteLine("Building hif_" + String.Format("{0:D6}", i) + ".nfs...");
-                    var nfsTemp = new BinaryWriter(File.OpenWrite(Directory.GetCurrentDirectory() + "\\hif_" + String.Format("{0:D6}", i) + ".nfs"));
+                    var nfsTemp = new BinaryWriter(File.OpenWrite(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "hif_" + String.Format("{0:D6}", i) + ".nfs"));
                     nfsTemp.Write(nfs.ReadBytes(size > NFS_SIZE ? NFS_SIZE : (int)size));
                     size -= NFS_SIZE;
                     i++;
@@ -838,15 +838,9 @@ namespace nfs2iso2nfs
             return list;
         }
 
-
-        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern int memcmp(byte[] b1, byte[] b2, long count);
-
         static bool ByteArrayCompare(byte[] b1, byte[] b2)
         {
-            // Validate buffers are the same length.
-            // This also ensures that the count does not exceed the length of either buffer.
-            return b1.Length == b2.Length && memcmp(b1, b2, b1.Length) == 0;
+            return b1.SequenceEqual(b2);
         }
 
 
